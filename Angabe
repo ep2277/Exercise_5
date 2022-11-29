@@ -1,0 +1,80 @@
+Aufgabe 5: Chat-Client (100 %)¶
+
+In den letzten Jahren nahm die Nutzung des SMS-Dienstes zum Austausch von Textnachricht stetig ab.
+Ein Hauptgrund dafür sind die Popularität von Social-Media Plattformen (wie z.B. Facebook) und vor
+allem von sogenannten Private Messaging Diensten, z.B. WhatsApp, Telegram oder Signal.
+
+Um besser verstehen zu können, welche Abläufe hinter diesen und ähnlichen Programmen stehen,
+soll ein rudimentärer Chat implementiert werden. Der Chat-Server wurde von uns schon implementiert
+und läuft im internen JupyterHub-Netzwerk. Sie können diesen von Ihrem JupyterHub-Container aus erreichen.
+Ihre Aufgabe ist es, den dazugehörigen Client in Python zu implementieren.
+
+Die Verbindung zum Chat-Server läuft in 2 Phasen ab. In der ersten Phase, der Discovery-Phase, geht es darum,
+die IP-Adresse und den Port des Chat-Servers herauszufinden. Dazu werden UDP-Broadcast-Nachrichten verwendet.
+Sie schicken eine UDP-Broadcast Nachricht (d.h. die Empfängeradresse ist eine Broadcast-Adresse) an den Port 3333
+und erhalten als Antwort eine Nachricht mit der IP-Adresse und den Port des Chat-Servers.
+Viele reale Autodiscovery-Protokolle funktionieren genau so.
+
+In der zweiten Phase stellen Sie eine TCP-Verbindung zum Chat-Server her und melden sich mit Ihrem
+gewählten Benutzernamen an. Diese TCP-Verbindung halten Sie offen, um darüber Chat-Nachrichten der anderen
+Chat-Teilnehmer zu empfangen und selber Chat-Nachrichten zu verschicken.
+
+Das Protokoll für die Kommunikation mit dem Chat-Server finden Sie unten. Die Beschreibung des Protokolls
+ist nicht ganz vollständig. Versuchen Sie durch Ausprobieren die restlichen Details des Protokolls selber
+herauszufinden. Auch in der Realität kommt man leider oft um Ausprobieren nicht herum, wenn es darum geht,
+Protokolle in seinem Programm zu implementieren.
+
+Protokoll
+Der Client kann folgende Nachrichten an den Server schicken:
+
+TCP:
+
+DISCONNECT <username>\r\n
+PING <username>\r\n
+CONNECT <username>\r\n
+MSG <message>\r\n
+UDP:
+
+DISCOVER
+Vom Server können folgende Nachrichtentypen geschickt werden:
+
+MSG <username> <message>\r\n
+
+Chatnachricht von user
+ERROR <statuscode> <statustext>
+
+Fehlernachricht vom Server an den Client
+
+
+
+Implementierung
+
+In Ihrem Chat-Client sollten Sie folgendermassen vorgehen:
+
+Ok!     Finden Sie mithilfe eines UDP-Broadcasts (an Port 3333) heraus, welche IP-Adresse der Chat-Server besitzt.
+        Sollten Sie als Rückgabewert Bad Request erhalten, überprüfen Sie die Nachricht!
+
+Ok!     Verbinden Sie sich mithilfe von TCP zum Chat-Server, indem Sie einen Benutzernamen angeben.
+
+        Da der Server die Verbindung zu einem inaktiven Clienten nach einer bestimmten Zeitspanne schließt,
+        muss die Verbindung mithilfe eines Keep-Alive-Signals am Leben gehalten werden. Diesem Signal ist der
+        Benutzername mitzugeben, damit der Server die korrekte Verbindung aufrecht erhalten kann.
+
+        Wird dem Programm durch Strg + C die Beendigung signalisiert, soll der Client vorher die
+        Verbindung zum Server beenden.
+
+Hinweise:
+
+Um gleichzeitiges Empfangen, Senden und Keep-Alive zu ermöglichen, muss Multithreading verwendet werden.
+Infos zu Multithreading in Python finden Sie hier und hier.
+Infos zu Signals in Python finden Sie hier.
+Damit Sie Broadcast-Nachrichten über einen Socket schicken können, müssen Sie für diesen Socket die
+Broadcast-Option aktivieren. Dies machen Sie mithilfe des Befehls mysocket.setsockopt
+(socket.SOL_SOCKET, socket.SO_BROADCAST, 1).
+Hier finden Sie ein UDP-Broadcast Beispiel in Python.
+Hier finden Sie ein UDP-Broadcast Beispiel in C.
+Hier finden Sie noch weitere allgemeine Informationen zur Verwendung von UDP/TCP-Sockets in Python.
+Falls der Chat-Server nicht erreichbar ist (da er vielleicht abgestürzt ist), dann informieren Sie mich
+bitte über die Mail-Adresse matthias@janetschek.net (über meine MCI-Mailadresse erreichen Sie mich ausserhalb
+der Arbeitszeiten, vor allem am Wochenende, sehr schlecht).
+Speichern Sie Ihre Datei unter dem Namen ChatClient.py ab und geben Sie diese wie gewohnt über JupyterHub ab
